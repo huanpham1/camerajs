@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  {% load static %}
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    canvas {
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" width="720" height="560" autoplay muted></video>
+  <div id="a"></div> 
+  <img src="" id='outputImage' alt=""> 
+  <!-- <button id='butt'>click</button>  -->
+    <script  src="{% static 'js/face-api.min.js' %}"></script>
+    <!-- <script type="module" src="{% static 'js/detech.js' %}"></script> -->
+    <script type="module" >
+      import { getStorage, ref,uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+      apiKey: "AIzaSyAnxR0khiEU_pTYojc1f_9AlmEnE9sg5D4",
+      authDomain: "fir-prj-51e7b.firebaseapp.com",
+      projectId: "fir-prj-51e7b",
+      storageBucket: "fir-prj-51e7b.appspot.com",
+      messagingSenderId: "646723771777",
+      appId: "1:646723771777:web:d126b73ea1614e393e1c80",
+      measurementId: "G-5WQ25ZNRK2"
+      };
+        
+      
+      const app = initializeApp(firebaseConfig)
+      
+      function myfunc(c,i){
+        c.toBlob(function(blob){
+          const metaData = {
+            contentType: blob.type
+          }
+        const storage = getStorage(app);
+        const storageRef = ref(storage, "Images/"+i+".png")
+            const uploadTask = uploadBytesResumable(storageRef, blob,metaData)
+            //dowload url
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              console.log('File available at', downloadURL);
+            });
+        })
+      }
+      // Initialize Firebase
+      const video = document.getElementById('video')
+        faceapi.nets.ssdMobilenetv1.loadFromUri('/static/js/models').then(startVideo)
+      
+      function startVideo() {
+        navigator.getUserMedia(
+            {video: {}},
+            stream => video.srcObject = stream,
+            err => console.error(err)
+        )
+      }
+      video.addEventListener('play', () => {
+        for(let i = 1; i < 6; i++){
+        setTimeout(async () => {
+            let detections = await faceapi.detectSingleFace(video)
+            while(detections == undefined){
+              detections = await faceapi.detectSingleFace(video)
+            }
+            //extract face
+            const regionsToExtract = [
+                new faceapi.Rect( detections.box.x, detections.box.y , detections.box.width , detections.box.height)
+            ]
+            let faceImages = await faceapi.extractFaces(video, regionsToExtract)  
+            faceImages.forEach(cnv =>{
+                myfunc(cnv,i)
+            })
+        }, 1000)}
+      })
+    </script>
+</body>
+</html>
