@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  *{
+    margin: 0;
+    padding: 0;
+  }
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  margin: auto;
+  width: 72%;
+  height: 100%;
+  background-color: #000000;
+  display: flex;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  height: 30px;
+  width: 30px;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+</style>
+</head>
+<body>
+
+<h2>Modal Example</h2>
+
+<!-- Trigger/Open The Modal -->
+<button id="myBtn">Open Modal</button>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close"></span>
+  </div>
+  <img id="home" alt="">
+
+</div>
+
+<script>
+// Get the modal
+var modal = document.getElementById("myModal");
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+let modalcontent = document.querySelector(".modal-content")
+// When the user clicks the button, open the modal 
+
+btn.onclick = function() {
+  modal.style.display="block"
+  const video = document.createElement('video');
+  video.id = "video"
+  video.style.width = "100%"
+  video.style.height = "100%"
+  video.setAttribute('autoplay', 'autoplay');
+  video.setAttribute('muted', 'muted');
+  video.style.borderRadius = "5%";
+  video.style.clipPath = "ellipse(30% 50% at center)";
+  modalcontent.appendChild(video);
+  let localstream;
+  let img = document.querySelector("#home"); 
+
+  if (navigator.mediaDevices.getUserMedia !== null) {
+    var options = { 
+      video:true, 
+      audio:false 
+    };  
+    navigator.webkitGetUserMedia(options, function(stream) { 
+      video.srcObject = stream;
+      //vid.src = window.URL.createObjectURL(stream);
+      localstream = stream;
+      console.log("streaming");
+      
+  const canvas = document.createElement("canvas");
+  // scale the canvas accordingly
+  canvas.width = "500";
+  canvas.height = "500";
+  // draw the video at that frame
+  canvas.getContext('2d')
+    .drawImage(video, 0, 0, canvas.width, canvas.height);
+  // convert it to a usable data URL
+  const dataURL = canvas.toDataURL();
+  img.src = dataURL
+  console.log(dataURL)
+    }, function(e) { 
+      console.log("background error : " + e.name);
+    }); 
+  }
+  
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+      video.src = "";
+      localstream.getTracks()[0].stop();
+      console.log("Vid off");
+      modalcontent.removeChild(video);
+  
+    }
+  }
+  span.onclick = () => {
+    //clearInterval(theDrawLoop);
+    //ExtensionData.vidStatus = 'off';
+    video.src = "";
+    localstream.getTracks()[0].stop();
+    console.log("Vid off");
+    modal.style.display = "none";
+    modalcontent.removeChild(video);
+  }
+}
+//stop stream
+
+// When the user clicks on <span> (x), close the modal
+//span.onclick = function() {
+//  modal.style.display = "none";
+//} 
+
+// When the user clicks anywhere outside of the modal, close it
+
+//stream
+
+</script>
+
+</body>
+</html>
